@@ -1,0 +1,90 @@
+---
+title: "tidy_code"
+author: "ACK"
+date: "9/13/2021"
+output: word_document
+---
+
+
+Set working directory and load packages
+```{r}
+setwd("~/Cue_Detection")
+library(tidyverse)
+library(stringr)
+library(lubridate)
+library(readr)
+library(readxl)
+library(brms)
+```
+
+Read in 128 .csv files and bind them into one table
+```{r}
+files <- list.files(path = "~/Cue_Detection/data/ind_data", pattern = "*.csv", full.names = T)
+tbl <- sapply(files, read_csv, simplify=FALSE) %>% 
+  bind_rows(.id = "id")
+
+View(tbl)
+```
+
+Removing the X9 and X10 columns becasue I don't need them
+```{r}
+tbl$X9 <- NULL
+tbl$X10 <- NULL
+```
+
+Remove rows of NA
+```{r}
+tbl <- na.omit(tbl)
+```
+
+Now lets add a trial column based on the end of the id file name
+```{r}
+tbl$Trial <- ifelse(endsWith(tbl$id, "T2.csv"), "Trial_2", (ifelse(endsWith(tbl$id, "T1.csv"), "Trial_1", (ifelse(endsWith(tbl$id, "PT.csv"), "Prelim_Trial", (ifelse(endsWith(tbl$id, "T3.csv"), "Trial_3", "TURTLES")))))))
+
+```
+
+Adding a Turtle ID column
+```{r}
+
+numextract <- function(string){ 
+  str_extract(string, "\\-*\\d+\\.*\\d*")
+} 
+
+tbl$Turtle <- numextract(tbl$id)
+
+```
+
+Creating total seconds of behavior column with unit conversion (Thanks Jeff!)
+```{r}
+tbl$total_seconds <- as.numeric((tbl$End_Time - tbl$Start_Time)/60)
+```
+
+Need to add column for concentration group
+```{r}
+tbl %>% 
+  mutate(treatment = case_when(Turtle %in% c(86,91,83,93,80,76,58,75) ~ "0",
+                               Turtle %in% c(90,88,84,94,92,62,73,54) ~ "0.1",
+                               Turtle %in% c(96,87,89,82,55,68,65,2000) ~ "1",
+                               TRUE ~ "10")) %>% 
+  mutate(experiment_group = case_when(Turtle == 74 ~ "1",
+                                      Turtle %in% c(59,58,62,55,73,64,68,65,54,75) ~ "2",
+                                      Turtle %in% c(96,90,88,87,86,89,91,83,84,78,85) ~ "3",
+                                      TRUE ~ "4")) 
+```
+
+I made a mistake in one of the spellings of "Control" - time to fix that here
+```{r}
+tbl$Side <- ifelse(tbl$Side == "Stimulus", "Stimulus", "Control")
+```
+
+Exporting Formatted Master Data Frame as a .csv
+```{r}
+write.csv(tbl, "~/Cue_Detection/data/master_data.csv", row.names=FALSE)
+```
+
+
+
+
+This is in janitor and will remove uppercase letters, and spaces and stuff from column names
+dataset %>% 
+  clean_names()
