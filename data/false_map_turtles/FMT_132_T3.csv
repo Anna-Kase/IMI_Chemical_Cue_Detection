@@ -1,0 +1,8 @@
+Behavior,Quadrant,Side,Wall_Corner_Facing,Touching_Wall,Head_Up,Start_Time,End_Time,,
+Sitting,Center,Center,FNW,No,No,0:17,3:00,,
+Sitting,Center,Center,FNW,No,No,0:00,0:21,,
+Sitting,Center,Center,FNW,No,Yes,0:21,1:11,,
+Sitting,Center,Center,FNW,No,No,1:11,1:55,,
+Swimming,FS,Stimulus,FNW,No,No,1:55,1:57,,
+Swimming,FS,Stimulus,FSC,No,No,1:57,2:09,,
+Swimming,FS,Stimulus,FSC,Yes,No,2:09,2:17,,

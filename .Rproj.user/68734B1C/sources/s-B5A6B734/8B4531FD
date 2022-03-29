@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1648566620562.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8B4531FD",
+    "lastKnownWriteTime" : 1648061719,
+    "last_content_update" : 1648061719,
+    "path" : "~/GitHub/IMI_Chemical_Cue_Detection/code/code.Rmd",
+    "project_path" : "code/code.Rmd",
+    "properties" : {
+        "cursorPosition" : "76,67",
+        "scrollLine" : "67"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
