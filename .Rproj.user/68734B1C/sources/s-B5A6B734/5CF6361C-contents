@@ -346,3 +346,336 @@ swim_stim <- brm(Swimming_Stimulus ~ 0 + treatment*Species*Trial,
 
 conditional_effects(swim_stim)
 
+
+
+
+# Play with the posterior
+
+post_ss <- swim_stim$data %>% 
+  distinct(treatment, Species, Trial) %>% 
+  add_epred_draws(swim_stim, re_formula = NA)
+
+post_ss$.row=NULL
+
+expand_post_ss <- post_ss %>% 
+  select(-.chain, -.iteration) %>%
+  distinct() %>% 
+  pivot_wider(names_from = "Species", values_from = ".epred") %>% 
+  pivot_wider(id_cols=c(treatment, .draw),
+              names_from=Trial, 
+              values_from=c("fmt", "painted")) %>% 
+  pivot_wider(id_cols=c(.draw),
+              names_from=treatment,
+              values_from=c("fmt_Prelim_Trial", "fmt_Trial_1", "fmt_Trial_2", 
+                            "fmt_Trial_3", "painted_Prelim_Trial", "painted_Trial_1",
+                            "painted_Trial_2", "painted_Trial_3"))
+
+
+#Calculating the difference between fmt and painted by treatment in only PT
+species_trt_pt <- expand_post_ss %>% 
+  mutate(pt_0 = fmt_Prelim_Trial_0 - painted_Prelim_Trial_0) %>% 
+  mutate(pt_01 = fmt_Prelim_Trial_0.1 - painted_Prelim_Trial_0.1) %>% 
+  mutate(pt_1 = fmt_Prelim_Trial_1 - painted_Prelim_Trial_1) %>% 
+  mutate(pt_10 = fmt_Prelim_Trial_10 - painted_Prelim_Trial_10)
+
+species_trt_pt %>% 
+  summarize(higher=sum(pt_0>0)/nrow(.))
+# 23.8% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the Control Group during the preliminary trial
+
+species_trt_pt %>% 
+  summarize(higher=sum(pt_01>0)/nrow(.))
+# 39% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 0.1 Group during preliminary trial
+
+species_trt_pt %>% 
+  summarize(higher=sum(pt_1>0)/nrow(.))
+# 12% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 1 Group during preliminary trial
+
+species_trt_pt %>% 
+  summarize(higher=sum(pt_10>0)/nrow(.))
+# 29% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 10 Group during preliminary trial
+
+
+
+#Calculating the difference between fmt and painted by treatment in only T1
+species_trt_t1 <- expand_post_ss %>% 
+  mutate(t1_0 = fmt_Trial_1_0 - painted_Trial_1_0) %>% 
+  mutate(t1_01 = fmt_Trial_1_0.1 - painted_Trial_1_0.1) %>% 
+  mutate(t1_1 = fmt_Trial_1_1 - painted_Trial_1_1) %>% 
+  mutate(t1_10 = fmt_Trial_1_10 - painted_Trial_1_10)
+
+species_trt_t1 %>% 
+  summarize(higher=sum(t1_0>0)/nrow(.))
+# 44% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the Control Group during Trial 1
+
+species_trt_t1 %>% 
+  summarize(higer=sum(t1_01>0)/nrow(.))
+# 23% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 0.1 Group during Trial 1
+
+species_trt_t1 %>% 
+  summarize(higer=sum(t1_1>0)/nrow(.))
+# 13.6% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 1 Group during Trial 1
+
+species_trt_t1 %>% 
+  summarize(higer=sum(t1_10>0)/nrow(.))
+# 50% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 10 Group during Trial 1
+
+
+#Calculating the difference between fmt and painted by treatment in only T2
+species_trt_t2 <- expand_post_ss %>% 
+  mutate(t2_0 = fmt_Trial_2_0 - painted_Trial_2_0) %>% 
+  mutate(t2_01 = fmt_Trial_2_0.1 - painted_Trial_2_0.1) %>% 
+  mutate(t2_1 = fmt_Trial_2_1 - painted_Trial_2_1) %>% 
+  mutate(t2_10 = fmt_Trial_2_10 - painted_Trial_2_10)
+
+species_trt_t2 %>% 
+  summarize(higher=sum(t2_0>0)/nrow(.))
+# 43% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the Control Group during Trial 2
+
+species_trt_t2 %>% 
+  summarize(higher=sum(t2_01>0)/nrow(.))
+# 32.4% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 0.1 Group during Trial 2
+
+species_trt_t2 %>% 
+  summarize(higher=sum(t2_1>0)/nrow(.))
+# 32.2% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 1 Group during Trial 2
+
+species_trt_t2 %>% 
+  summarize(higher=sum(t2_10>0)/nrow(.))
+# 17.6% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 10 Group during Trial 2
+
+
+
+#Calculating the difference between fmt and painted by treatment in only T3
+species_trt_t3 <- expand_post_ss %>% 
+  mutate(t3_0 = fmt_Trial_3_0 - painted_Trial_3_0) %>% 
+  mutate(t3_01 = fmt_Trial_3_0.1 - painted_Trial_3_0.1) %>% 
+  mutate(t3_1 = fmt_Trial_3_1 - painted_Trial_3_1) %>% 
+  mutate(t3_10 = fmt_Trial_3_10 - painted_Trial_3_10)
+
+species_trt_t3 %>% 
+  summarize(higher=sum(t3_0>0)/nrow(.))
+# 45% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the Control Group during Trial 3
+
+species_trt_t3 %>% 
+  summarize(higher=sum(t3_01>0)/nrow(.))
+# 37% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 0.1 Group during Trial 3
+
+species_trt_t3 %>% 
+  summarize(higher=sum(t3_1>0)/nrow(.))
+# 11.8% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 1 Group during Trial 3
+
+species_trt_t3 %>% 
+  summarize(higher=sum(t3_10>0)/nrow(.))
+# 27.6% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles in the 10 Group during Trial 3
+
+
+
+
+
+# Just species comparison regardless of treatments and trials
+post_species <- post_ss %>% 
+  select(-.chain, -.iteration) %>%
+  distinct() %>% 
+  pivot_wider(names_from = "Species", values_from = ".epred")
+
+#Calculating the overall difference between fmt and painteds 
+post_species %>% 
+  mutate(fmt_paint = fmt - painted) %>% 
+  ungroup() %>% 
+  summarize(higher=sum(fmt_paint>0)/nrow(.))
+
+# 30.1% probability that the False Map Turtles spent more time swimming on the stimulus side
+# of the arena than Painted Turtles overall
+
+
+
+
+
+# Within species comparisons
+
+trt_post_ss <- post_ss %>% 
+  select(-.chain, -.iteration) %>%
+  distinct() %>% 
+  pivot_wider(names_from = "Species", values_from = ".epred") %>% 
+  pivot_wider(id_cols=c(Trial, .draw),
+              names_from=treatment, 
+              values_from=c("fmt", "painted")) 
+
+
+#Calculating the difference between fmt treatments regardless of trial
+fmt_trts <- trt_post_ss %>% 
+  ungroup() %>% 
+  mutate(control_low = fmt_0 - fmt_0.1) %>% 
+  mutate(control_med = fmt_0 - fmt_1) %>% 
+  mutate(control_high = fmt_0 - fmt_10) %>% 
+  mutate(low_med = fmt_0.1 - fmt_1) %>% 
+  mutate(low_high = fmt_0.1 - fmt_10) %>% 
+  mutate(med_high = fmt_1 - fmt_10)
+
+
+fmt_trts %>% 
+  summarize(higher=sum(control_low>0)/nrow(.))
+# 66.6% probability that the False Map Turtles in the control group spent more time 
+# swimming on the stimulus side of the arena than False Map Turtles in the 0.1 group overall
+
+fmt_trts %>% 
+  summarize(higher=sum(control_med>0)/nrow(.))
+# 67% probability that the False Map Turtles in the control group spent more time 
+# swimming on the stimulus side of the arena than False Map Turtles in the 1 group overall
+
+fmt_trts %>% 
+  summarize(higher=sum(control_high>0)/nrow(.))
+# 59.4% probability that the False Map Turtles in the control group spent more time 
+# swimming on the stimulus side of the arena than False Map Turtles in the 10 group overall
+
+fmt_trts %>% 
+  summarize(higher=sum(low_med>0)/nrow(.))
+# 51.4% probability that the False Map Turtles in the 0.1 group spent more time 
+# swimming on the stimulus side of the arena than False Map Turtles in the 1 group overall
+
+fmt_trts %>% 
+  summarize(higher=sum(low_high>0)/nrow(.))
+# 40.9% probability that the False Map Turtles in the 0.1 group spent more time 
+# swimming on the stimulus side of the arena than False Map Turtles in the 10 group overall
+
+fmt_trts %>% 
+  summarize(higher=sum(med_high>0)/nrow(.))
+# 40.2% probability that the False Map Turtles in the 1 group spent more time 
+# swimming on the stimulus side of the arena than False Map Turtles in the 10 group overall
+
+
+
+
+#Calculating the difference between fmt treatments within trials
+fmt_trts_trial <- trt_post_ss %>% 
+  mutate(control_low = fmt_0 - fmt_0.1) %>% 
+  mutate(control_med = fmt_0 - fmt_1) %>% 
+  mutate(control_high = fmt_0 - fmt_10) %>% 
+  mutate(low_med = fmt_0.1 - fmt_1) %>% 
+  mutate(low_high = fmt_0.1 - fmt_10) %>% 
+  mutate(med_high = fmt_1 - fmt_10)
+
+fmt_trts_trial %>% 
+  summarize(higher=sum(control_low>0)/nrow(.))
+
+fmt_trts_trial %>% 
+  summarize(higher=sum(control_med>0)/nrow(.))
+
+fmt_trts_trial %>% 
+  summarize(higher=sum(control_high>0)/nrow(.))
+
+fmt_trts_trial %>% 
+  summarize(higher=sum(low_med>0)/nrow(.))
+
+fmt_trts_trial %>% 
+  summarize(higher=sum(low_high>0)/nrow(.))
+
+fmt_trts_trial %>% 
+  summarize(higher=sum(med_high>0)/nrow(.))
+
+
+
+
+# Calculating the difference between painted treatments regardless of trial
+paint_trts <- trt_post_ss %>% 
+  ungroup() %>% 
+  mutate(control_low = painted_0 - painted_0.1) %>%
+  mutate(control_med = painted_0 - painted_1) %>%
+  mutate(control_high = painted_0 - painted_10) %>%
+  mutate(low_med = painted_0.1 - painted_1) %>%
+  mutate(low_high = painted_0.1 - painted_10) %>%
+  mutate(med_high = painted_1 - painted_10)
+
+
+paint_trts %>% 
+  summarize(higher=sum(control_low>0)/nrow(.))
+# 54.6% probability that the Painted Turtles in the control group spent more time 
+# swimming on the stimulus side of the arena than Painted Turtles in the 0.1 group overall
+
+paint_trts %>% 
+  summarize(higher=sum(control_med>0)/nrow(.))
+# 41.1% probability that the Painted Turtles in the control group spent more time 
+# swimming on the stimulus side of the arena than Painted Turtles in the 1 group overall
+
+paint_trts %>% 
+  summarize(higher=sum(control_high>0)/nrow(.))
+# 47.1% probability that the Painted Turtles in the control group spent more time 
+# swimming on the stimulus side of the arena than Painted Turtles in the 10 group overall
+
+paint_trts %>% 
+  summarize(higher=sum(low_med>0)/nrow(.))
+# 33.8% probability that the Painted Turtles in the 0.1 group spent more time 
+# swimming on the stimulus side of the arena than Painted Turtles in the 1 group overall
+
+paint_trts %>% 
+  summarize(higher=sum(low_high>0)/nrow(.))
+# 41.2% probability that the Painted Turtles in the 0.1 group spent more time 
+# swimming on the stimulus side of the arena than Painted Turtles in the 10 group overall
+
+paint_trts %>% 
+  summarize(higher=sum(med_high>0)/nrow(.))
+# 54.6% probability that the Painted Turtles in the 1 group spent more time 
+# swimming on the stimulus side of the arena than Painted Turtles in the 10 group overall
+
+
+
+
+#Calculating the difference between painted treatments within trials
+paint_trts_trial <- trt_post_ss %>% 
+  mutate(control_low = painted_0 - painted_0.1) %>%
+  mutate(control_med = painted_0 - painted_1) %>%
+  mutate(control_high = painted_0 - painted_10) %>%
+  mutate(low_med = painted_0.1 - painted_1) %>%
+  mutate(low_high = painted_0.1 - painted_10) %>%
+  mutate(med_high = painted_1 - painted_10)
+
+paint_trts_trial %>% 
+  summarize(higher=sum(control_low>0)/nrow(.))
+
+paint_trts_trial %>% 
+  summarize(higher=sum(control_med>0)/nrow(.))
+
+paint_trts_trial %>% 
+  summarize(higher=sum(control_high>0)/nrow(.))
+
+paint_trts_trial %>% 
+  summarize(higher=sum(low_med>0)/nrow(.))
+
+paint_trts_trial %>% 
+  summarize(higher=sum(low_high>0)/nrow(.))
+
+paint_trts_trial %>% 
+  summarize(higher=sum(med_high>0)/nrow(.))
+
+
+post_ss %>% 
+  median_qi() %>% 
+  write.table(file = "~/GitHub/IMI_Chemical_Cue_Detection/tables/full_median_qi.csv", sep = ",", quote = FALSE, row.names = F)
+
+
+
+
+
+# Attempt to make a plot
+paint_trts_trial %>% 
+  select(Trial, .draw, control_low, control_med, control_high, low_med,
+         low_high, med_high) %>% 
+  gather(comparison, "difference", -c(Trial, .draw)) %>% 
+  ggplot(aes(comparison, difference, fill=Trial))+
+  geom_boxplot()
