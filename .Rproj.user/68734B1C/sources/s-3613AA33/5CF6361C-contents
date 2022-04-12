@@ -503,9 +503,22 @@ post_species %>%
 # 30.1% probability that the False Map Turtles spent more time swimming on the stimulus side
 # of the arena than Painted Turtles overall
 
+median(post_species$fmt)
+median(post_species$painted)
+
+mean(post_species$fmt)
+mean(post_species$painted)
+
+post_species %>% 
+  ungroup() %>% 
+  group_by(treatment) %>% 
+  summarize(
+    fmt_mean = mean(fmt),
+    paint_mean = mean(painted)
+  )
 
 
-
+# (new-old)/old  * 100
 
 # Within species comparisons
 
@@ -673,9 +686,55 @@ post_ss %>%
 
 
 # Attempt to make a plot
-paint_trts_trial %>% 
-  select(Trial, .draw, control_low, control_med, control_high, low_med,
-         low_high, med_high) %>% 
-  gather(comparison, "difference", -c(Trial, .draw)) %>% 
-  ggplot(aes(comparison, difference, fill=Trial))+
+# paint_trts_trial %>% 
+#   select(Trial, .draw, control_low, control_med, control_high, low_med,
+#          low_high, med_high) %>% 
+#   gather(comparison, "difference", -c(Trial, .draw)) %>% 
+#   ggplot(aes(comparison, difference, fill=Trial))+
+#   geom_boxplot()
+
+
+
+post_ss %>% 
+  ggplot(aes(treatment, .epred, fill=Species))+
   geom_boxplot()
+
+
+
+swim_stim <- brm(swim_time ~ 0 + side*treatment*Species*Trial,
+                 family = Gamma(link = "log"),
+                 data = sub_side_beh,
+                 prior = c(prior(normal(2,2), ub = 5.703782, class = "b"),
+                           prior(exponential(0.1), class = "shape")),
+                 #sample_prior = "only",
+                 cores = 4, chains = 1, iter = 1000)
+
+
+swim_time <- all_tbl  %>% 
+  group_by(Turtle, Trial, treatment, Species, experiment_group, Side, Behavior) %>%
+  filter(Behavior == "Swimming") %>% 
+  summarise(
+    swim_time = sum(total_seconds)
+  ) 
+
+swim_time[is.na(swim_time)]<-0
+
+
+swim_2 <- brm(swim_time ~ 0 + Side*treatment*Species*Trial +
+                (1|Turtle),
+                 family = Gamma(link = "log"),
+                 data = swim_time,
+                 prior = c(prior(normal(2,2), ub = 5.703782, class = "b"),
+                           prior(exponential(0.1), class = "shape")),
+                 #sample_prior = "only",
+                 cores = 4, chains = 1, iter = 1000)
+
+conditional_effects(swim_2)
+
+swim_2$data %>% 
+  distinct() %>% 
+  add_epred_draws(swim_2) %>% 
+  ggplot(aes(treatment, .epred, fill=Trial))+
+  geom_boxplot()+
+  facet_wrap(~Species)
+
