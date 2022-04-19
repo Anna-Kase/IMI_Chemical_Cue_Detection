@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1649871761572.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2701352104",
+    "id" : "1441CE65",
+    "lastKnownWriteTime" : 1650377272,
+    "last_content_update" : 1650377274539,
+    "path" : "~/GitHub/IMI_Chemical_Cue_Detection/code/orthogonal_model_that_runs.R",
+    "project_path" : "code/orthogonal_model_that_runs.R",
+    "properties" : {
+        "cursorPosition" : "79,0",
+        "scrollLine" : "59",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

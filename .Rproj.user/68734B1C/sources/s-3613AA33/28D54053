@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1649872520485.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "28D54053",
+    "lastKnownWriteTime" : 8026363914660965410,
+    "last_content_update" : 1649872520485,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "C3268C09",
+        "caption" : "swim_time",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=swim_time&cache_key=C3268C09",
+        "displayedObservations" : 419,
+        "environment" : "",
+        "expression" : "swim_time",
+        "object" : "swim_time",
+        "preview" : 0,
+        "totalObservations" : 419,
+        "variables" : 8
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
