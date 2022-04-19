@@ -2,7 +2,7 @@
 
 
 
-# This works on its own
+# This works on its own with no varying intercept nor varying slope
 side_species_treatment_trial <- brm(time ~ 1 + Side*Species*treatment*Trial,
                                     family = Gamma(link="log"),
                                     data = swim_time,
@@ -21,7 +21,7 @@ side_species_treatment_trial$data %>%
   labs(title="Side, Species, Treatment, and Trial")
 
 
-# This one works, needs some work on the priors, but it works
+# This one works with just a varying intercept, needs some work on the priors, but it works
 sstt_varI <- brm(time ~ 1 + Side*Species*treatment*Trial +
                                       (1 | Turtle),
                                     family = Gamma(link="log"),
@@ -42,6 +42,10 @@ sstt_varI$data %>%
   labs(title="Side, Species, Treatment, and Trial")
 
 
+
+#This one sort of worked with a varying intercept and a varying slope, but they had to be
+#specified as orthogonal/statistically independent of one another and I'm not sure if that
+#is correct
 sstt_var <- brm(time ~ 1 + Side*Species*treatment*Trial +
                    (1 + Side*Species*treatment*Trial || Turtle),
                  family = Gamma(link="log"),
