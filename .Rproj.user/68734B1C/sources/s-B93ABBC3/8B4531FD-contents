@@ -1,0 +1,261 @@
+
+
+Instructions for saving data .xlsx file into multiple .csv files:
+
+1. Press Alt + F11 keys simultaneously to open the Microsoft Visual Basic Application window.
+
+2. In the Microsoft Visual Basic Application window, click Insert > Module. Then copy and paste the following code into the Module window.
+
+VBA code: Export all sheets to separated csv files:
+
+Sub ExportSheetsToCSV()
+    Dim xWs As Worksheet
+    Dim xcsvFile As String
+    For Each xWs In Application.ActiveWorkbook.Worksheets
+        xWs.Copy
+        xcsvFile = CurDir & "\" & xWs.Name & ".csv"
+        Application.ActiveWorkbook.SaveAs Filename: = xcsvFile, _
+        FileFormat: = xlCSV, CreateBackup: = False
+        Application.ActiveWorkbook.Saved = True
+        Application.ActiveWorkbook.Close
+    Next
+End Sub
+
+
+Set working directory and load packages
+```{r}
+setwd("~/Cue_Detection")
+library(tidyverse)
+library(stringr)
+library(lubridate)
+library(readr)
+library(readxl)
+library(brms)
+```
+
+Read-in multiple .csv files
+```{r}
+files <- list.files(path = "~/Cue_Detection/data/ind_data", pattern = "*.csv", full.names = T)
+tbl <- sapply(files, read_csv, simplify=FALSE) %>% 
+  bind_rows(.id = "id")
+
+View(tbl)
+```
+
+
+Removing the X9 and X10 columns becasue I don't need them
+```{r}
+tbl$X9 <- NULL
+tbl$X10 <- NULL
+```
+
+Remove rows of NA
+```{r}
+tbl <- na.omit(tbl)
+```
+
+
+Now lets add a trial column based on the end of the id file name
+```{r}
+tbl$Trial <- ifelse(endsWith(tbl$id, "T2.csv"), "Trial_2", (ifelse(endsWith(tbl$id, "T1.csv"), "Trial_1", (ifelse(endsWith(tbl$id, "PT.csv"), "Prelim_Trial", (ifelse(endsWith(tbl$id, "T3.csv"), "Trial_3", "TURTLES")))))))
+
+```
+
+Adding a Turtle ID column
+```{r}
+
+numextract <- function(string){ 
+  str_extract(string, "\\-*\\d+\\.*\\d*")
+} 
+
+tbl$Turtle <- numextract(tbl$id)
+
+```
+
+Creating total seconds of behavior column with unit conversion (Thanks Jeff!)
+```{r}
+tbl$total_seconds <- as.numeric((tbl$End_Time - tbl$Start_Time)/60)
+```
+
+
+Need to add column for concentration group
+```{r}
+tbl$Treatment <- ifelse(tbl$Turtle == "96", "1", ifelse(tbl$Turtle == "90", "0.1", ifelse(tbl$Turtle == "88", "0.1", ifelse(tbl$Turtle == "87", "1", ifelse(tbl$Turtle == "86", "Control", ifelse(tbl$Turtle == "89", "1", ifelse(tbl$Turtle == "91", "Control", ifelse(tbl$Turtle == "78", "10", ifelse(tbl$Turtle == "85", "10", ifelse(tbl$Turtle == "83", "Control", ifelse(tbl$Turtle == "84", "0.1", ifelse(tbl$Turtle == "81", "10", ifelse(tbl$Turtle == "2000", "1", ifelse(tbl$Turtle == "79", "10", ifelse(tbl$Turtle == "95", "10", ifelse(tbl$Turtle == "94", "0.1", ifelse(tbl$Turtle == "82", "1", ifelse(tbl$Turtle == "93", "Control", ifelse(tbl$Turtle == "80", "Control", ifelse(tbl$Turtle == "92", "0.1", ifelse(tbl$Turtle == "76", "Control", ifelse(tbl$Turtle == "74", "10", ifelse(tbl$Turtle == "59", "10", ifelse(tbl$Turtle == "58", "Control", ifelse(tbl$Turtle == "62", "0.1", ifelse(tbl$Turtle == "55", "1", ifelse(tbl$Turtle == "73", "0.1", ifelse(tbl$Turtle == "54", "0.1", ifelse(tbl$Turtle == "75", "Control", ifelse(tbl$Turtle == "64", "10", ifelse(tbl$Turtle == "68", "1", ifelse(tbl$Turtle == "65", "1", "NO"))))))))))))))))))))))))))))))))
+```
+
+Adding column with experimental group
+```{r}
+tbl$Experimental_Group <- ifelse(tbl$Turtle == "96", "3", ifelse(tbl$Turtle == "90", "3", ifelse(tbl$Turtle == "88", "3", ifelse(tbl$Turtle == "87", "3", ifelse(tbl$Turtle == "86", "3", ifelse(tbl$Turtle == "89", "3", ifelse(tbl$Turtle == "91", "3", ifelse(tbl$Turtle == "78", "3", ifelse(tbl$Turtle == "85", "3", ifelse(tbl$Turtle == "83", "3", ifelse(tbl$Turtle == "84", "3", ifelse(tbl$Turtle == "81", "4", ifelse(tbl$Turtle == "2000", "4", ifelse(tbl$Turtle == "79", "4", ifelse(tbl$Turtle == "95", "4", ifelse(tbl$Turtle == "94", "4", ifelse(tbl$Turtle == "82", "4", ifelse(tbl$Turtle == "93", "4", ifelse(tbl$Turtle == "80", "4", ifelse(tbl$Turtle == "92", "4", ifelse(tbl$Turtle == "76", "4", ifelse(tbl$Turtle == "74", "1", ifelse(tbl$Turtle == "59", "2", ifelse(tbl$Turtle == "58", "2", ifelse(tbl$Turtle == "62", "2", ifelse(tbl$Turtle == "55", "2", ifelse(tbl$Turtle == "73", "2", ifelse(tbl$Turtle == "54", "2", ifelse(tbl$Turtle == "75", "2", ifelse(tbl$Turtle == "64", "2", ifelse(tbl$Turtle == "68", "2", ifelse(tbl$Turtle == "65", "2", "NO"))))))))))))))))))))))))))))))))
+```
+
+I made a mistake in one of the spellings of "Control" - time to fix that here
+```{r}
+tbl$Side <- ifelse(tbl$Side == "Stimulus", "Stimulus", "Control")
+```
+
+Exporting Formatted Master Data Frame as a .csv
+```{r}
+write.csv(tbl, "~/Cue_Detection/data/master_data.csv", row.names=FALSE)
+```
+
+
+The data has now been organized into a (hopefully) useable format. The rest of this is now analysis.
+
+
+
+
+Calculating total time spent performing a particular behavior based on turtle, trial, behavior, side, and head up or down (in that order)
+```{r}
+sub_group <- tbl  %>% 
+  group_by(Turtle, Trial, Treatment, Experimental_Group, Behavior, Side, Head_Up) %>% 
+  summarise(
+    Tot_Beh_Time = sum(total_seconds)
+  ) %>% 
+  unite(col="Full_Behavior", Behavior, Side, Head_Up, sep="_") %>% 
+  spread(Full_Behavior, Tot_Beh_Time)
+
+```
+
+Replacing nas in sub_group with zeroes because some turtles didn't perform particular behavior combinations, thus they spent 0 seconds doing that behavior
+```{r}
+sub_group[is.na(sub_group)]<-0
+```
+
+Make more sub-groupings
+
+Total time on behaviors regardless of position in the arena
+```{r}
+sub_group_behavior <- tbl  %>% 
+  group_by(Turtle, Trial, Treatment, Experimental_Group, Behavior, Side) %>% 
+  summarise(
+    Tot_Beh_Time = sum(total_seconds)
+  ) %>% 
+  unite(col="Full_Behavior", Behavior, sep="_") %>% 
+  spread(Full_Behavior, Tot_Beh_Time)
+
+sub_group_behavior[is.na(sub_group_behavior)]<-0
+```
+
+Total time on just side
+```{r}
+sub_group_side <- tbl  %>% 
+  group_by(Turtle, Trial, Treatment, Experimental_Group, Side) %>% 
+  summarise(
+    Tot_Side_Time = sum(total_seconds)
+  ) %>% 
+  unite(col="Side_Time", Side, sep="_") %>% 
+  spread(Side_Time, Tot_Side_Time)
+
+sub_group_side[is.na(sub_group_side)]<-0
+```
+
+
+Should be ready to start doing the stats now! :D
+
+
+Need to change the sub_group_behavior from wide to long
+```{r}
+long_sub_beh <- sub_group_behavior %>% 
+  gather(Behavior, "Time", -c(Turtle, Trial, Treatment, Experimental_Group, Side))
+
+
+```
+
+
+```{r}
+nova <- lm(Time ~ Treatment, data=long_sub_beh)
+anova(nova)
+```
+
+```{r}
+totals <- sub_group_behavior %>% 
+  group_by(Treatment) %>% 
+  summarise(
+    total_sitting = sum(Sitting),
+    total_swimming = sum(Swimming),
+    total_sniffing = sum(Sniffing),
+    total_biting = sum(Biting),
+    total_crawling = sum(Crawling),
+    total_scratching = sum(Scratching)
+  )
+
+View(totals)
+
+long_totals <- totals %>% 
+  gather(Behavior, "Totals", -Treatment)
+
+View(long_totals)
+
+condense_totals <- sub_group_behavior %>% 
+  group_by(Treatment) %>% 
+  summarise(
+    Sitting = sum(Sitting),
+    Swimming = sum(Swimming)
+  )
+
+long_condense_totals <- condense_totals %>% 
+  gather(Behavior, "Totals", -Treatment)
+
+ggplot(long_condense_totals, aes(x=Behavior, y=Totals, fill=Treatment))+
+  geom_bar(stat="identity", position=position_dodge2())
+```
+
+```{r}
+means <- sub_group_behavior %>% 
+  group_by(Treatment) %>% 
+  summarise(
+    Sitting = mean(Sitting),
+    Swimming = mean(Swimming)
+  )
+
+long_means <- means %>% 
+  gather(Behavior, "Totals", -Treatment)
+
+ggplot(long_means, aes(x=Behavior, y=Totals, fill=Treatment))+
+  geom_bar(stat="identity", position=position_dodge2())+
+  ylab("Mean Time Spent on Behavior (seconds)")
+
+```
+
+
+```{r}
+m1_brms <- brm(Behavior ~ Treatment, data=long_sub_beh, family=multinomial(link="logit"),
+               prior=c(prior(normal(0,2), class=Intercept),
+                       prior(normal(0,1), class=b)),
+               cores=4)
+
+```
+
+```{r}
+m2_brms <- brm(Behavior ~ Treatment*Stimulus, data=cctd, family=bernoulli(link="logit"),
+               prior=c(prior(normal(0,2), class=Intercept),
+                       prior(normal(0,1), class=b)),
+               cores=4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#tbl$Turtle <- ifelse(endsWith(tbl$id, "2000_PT.csv"), "2000", (ifelse(endsWith(tbl$id, "2000_T1.csv"), "2000", (ifelse(endsWith(tbl$id, "2000_T2.csv"), "2000", (ifelse(endsWith(tbl$id, "2000_T3.csv"), "2000", (ifelse(endsWith(tbl$id, "54_PT.csv"), "54", (ifelse(endsWith(tbl$id, "54_T1.csv"), "54", (ifelse(endsWith(tbl$id, "54_T2.csv"), "54", (ifelse(endsWith("54_T3.csv"), "54", (ifelse(endsWith(tbl$id, "55_PT.csv"), "55", (ifelse(endsWith(tble$id, "55_T1.csv"), "Trial_1", (ifelse(endsWith(tbl$id, "55_T2.csv"), "55", (ifelse(endsWith(tbl$id, "55_T3.csv"), "55", (ifelse(endsWith(tbl$id, "58_PT.csv"), "58", (ifelse(endsWith(tbl$id, "58_T1.csv"), "58", (ifelse(endsWith(tbl$id, "58_T2.csv"), "58", (ifelse(endsWith(tbl$id, "58_T3.csv"), "58", (ifelse(endsWith(tbl$id, "59_PT.csv"), "59", (ifelse(endsWith("59_T1.csv"), "59", (ifelse(endsWith(tbl$id, "59_T2.csv"), "59", (ifelse(endsWith(tbl$id, "59_T3.csv"), "59", (ifelse(endsWith(tbl$id, "62_PT.csv"), "62", (ifelse(endsWith(tbl$id, "62_T1.csv"), "62", (ifelse(endsWith(tbl$id, "62_T2.csv"), "62", (ifelse(endsWith(tbl$id, "62_T3.csv"), "62", (ifelse(endsWith(tbl$id, "64_PT.csv"), "64", (ifelse(endsWith(tbl$id, "64_T1.csv"), "64", (ifelse(endsWith(tbl$id, "64_T2.csv"), "64", (ifelse(endsWith(tbl$id, "64_T3.csv"), "64", (ifelse(endsWith(tbl$id, "65_PT.csv"), "65", (ifelse(endsWith(tbl$id, "65_T1.csv"), "65", (ifelse(endsWith(tbl$id, "65_T2.csv"), "65", (ifelse(endsWith("65_T3.csv"), "65", (ifelse(endsWith(tbl$id, "68_PT.csv"), "68", (ifelse(endsWith(tbl$id, "68_T1.csv"), "68", (ifelse(endsWith(tbl$id, "68_T2.csv"), "68", (ifelse(endsWith(tbl$id, "68_T3.csv"), "68", (ifelse(endsWith(tbl$id, "73_PT.csv"), "73", (ifelse(endsWith(tbl$id, "73_T1.csv"), "73", (ifelse(endsWith(tbl$id, "73_T2.csv"), "73", (ifelse(endsWith(tbl$id, "73_T3.csv"), "73", (ifelse(endsWith(tbl$id, "74_PT.csv"), "74", (ifelse(endsWith(tbl$id, "74_T1.csv"), "74", (ifelse(endsWith(tbl$id, "74_T2.csv"), "74", (ifelse(endsWith(tbl$id, "74_T3.csv"), "74", (ifelse(endsWith(tbl$id, "75_PT.csv"), "75", (ifelse(endsWith(tbl$id, "75_T1.csv"), "75", (ifelse(endsWith(tbl$id, "75_T2.csv"), "75", (ifelse(endsWith(tbl$id, "75_T3.csv"), "75", (ifelse(endsWith(tbl$id, "76_PT.csv"), "76", (ifelse(endsWith(tbl$id, "76_T1.csv"), "76", (ifelse(endsWith(tbl$id, "76_T2.csv"), "76", (ifelse(endsWith(tbl$id, "76_T3.csv"), "76", (ifelse(endsWith(tbl$id, "78_PT.csv"), "78", (ifelse(endsWith(tbl$id, "78_T1.csv"), "78", (ifelse(endsWith(tbl$id, "78_T2.csv"), "78", (ifelse(endsWith(tbl$id, "78_T3.csv"), "78", (ifelse(endsWith(tbl$id, "79_PT.csv"), "79", (ifelse(endsWith(tbl$id, "79_T1.csv"), "79", (ifelse(endsWith(tbl$id, "79_T2.csv"), "79", (ifelse(endsWith(tbl$id, "79_T3.csv"), "79", (ifelse(endsWith(tbl$id, "80_PT.csv"), "80", (ifelse(endsWith(tbl$id, "80_T1.csv"), "80", (ifelse(endsWith(tbl$id, "80_T2.csv"), "80", (ifelse(endsWith(tbl$id, "80_T3.csv"), "80", (ifelse(endsWith(tbl$id, "81_PT.csv"), "81", (ifelse(endsWith(tbl$id, "81_T1.csv"), "81", (ifelse(endsWith(tbl$id, "81_T2.csv"), "81", (ifelse(endsWith(tbl$id, "81_T3.csv"), "81", (ifelse(endsWith(tbl$id, "82_PT.csv"), "82", (ifelse(endsWith(tbl$id, "82_T1.csv"), "82", (ifelse(endsWith(tbl$id, "82_T2.csv"), "82", (ifelse(endsWith(tbl$id, "82_T3.csv"), "82", (ifelse(endsWith(tbl$id, "83_PT.csv"), "83", (ifelse(endsWith(tbl$id, "83_T1.csv"), "83", (ifelse(endsWith(tbl$id, "83_T2.csv"), "83", (ifelse(endsWith(tbl$id, "83_T3.csv"), "83", (ifelse(endsWith(tbl$id, "84_PT.csv"), "84", (ifelse(endsWith(tbl$id, "84_T1.csv"), "84", (ifelse(ends_with(tbl$id, "84_T2.csv"), "84", (ifelse(endsWith(tbl$id, "84_T3.csv"), "84", (ifelse(endsWith(tbl$id, "85_PT.csv"), "85", (ifelse(endsWith(tbl$id, "85_T1.csv"), "85", (ifelse(endsWith(tbl$id, "85_T2.csv"), "85", (ifelse(endsWith(tbl$id, "85_T3.csv"), "85", (ifelse(endsWith(tbl$id, "86_PT.csv"), "86", (ifelse(endsWith(tbl$id, "86_T1.csv"), "86", (ifelse(endsWith(tbl$id, "86_T3.csv"), "86", (ifelse(endsWith(tbl$id, "87_PT.csv"), "87", (ifelse(endsWith(tbl$id, "87_T1.csv"), "87", (ifelse(endsWith(tbl$id, "87_T2.csv"), "87", (ifelse(endsWith(tbl$id, "87_T3.csv"), "87", (ifelse(ends_with(tbl$id, "88_PT.csv"), "88", (ifelse(endsWith(tbl$id, "88_T1.csv"), "88", (ifelse(endsWith(tbl$id, "88_T2.csv"), "88", (ifelse(endsWith(tbl$id, "88_T3.csv"), "88", (ifelse(endsWith(tbl$id, "89_PT.csv"), "89", (ifelse(endsWith(tbl$id, "89_T1.csv"), "89", (ifelse(endsWith(tbl$id, "89_T2.csv"), "89", (ifelse(endsWith(tbl$id, "89_T3.csv"), "89", (ifelse(ends_with(tbl$id, "90_PT.csv"), "90", (ifelse(endsWith(tbl$id, "90_T1.csv"), "90", (ifelse(endsWith(tbl$id, "90_T2.csv"), "90", (ifelse(endsWith(tbl$id, "90_T3.csv"), "90", (ifelse(endsWith(tbl$id, "91_PT.csv"), "91", (ifelse(endsWith(tbl$id, "91_T1.csv"), "91", (ifelse(endsWith(tbl$id, "91_T2.csv"), "91", (ifelse(endsWith(tbl$id, "91_T3.csv"), "91", (ifelse(endsWith(tbl$id, "92_PT.csv"), "92", (ifelse(endsWith(tbl$id, "92_T2.csv"), "92", (ifelse(endsWith(tbl$id, "92_T3.csv"), "92", (ifelse(endsWith(tbl$id, "93_PT.csv"), "93", (ifelse(endsWith(tbl$id, "93_T1.csv"), "93", (ifelse(endsWith(tbl$id, "93_T2.csv"), "93", (ifelse(endsWith(tbl$id, "93_T3.csv"), "93", (ifelse(endsWith(tbl$id, "94_PT.csv"), "94", ifelse(endsWith(tbl$id, "94_T1.csv"), "94", (ifelse(endsWith(tbl$id, "94_T2.csv"), "94", (ifelse(endsWith(tbl$id, "94_T3.csv"), "94", "FUCK")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
+
+
+
+##(ifelse(endsWith(tbl$id, "95_PT.csv"), "95", (ifelse(endsWith(tbl$id, "95_T1.csv"), "95", (ifelse(endsWith(tbl$id, "95_T2.csv"), "95", (ifelse(endsWIth(tbl$id, "95_T3.csv"), "95", (ifelse(endsWith(tbl$id, "96_PT.csv"), "96", (ifelse(endsWith(tbl$id, "96_T1.csv"), "96", (ifelse(endsWith(tbl$id, "96_T2.csv"), "96", (ifelse(endsWith(tbl$id, "96_T3.csv"), "96", "FUCK"))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+```

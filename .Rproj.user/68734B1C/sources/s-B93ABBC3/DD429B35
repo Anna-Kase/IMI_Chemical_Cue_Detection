@@ -1,0 +1,33 @@
+{
+    "id": "DD429B35",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1648660727633.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "cacheKey": "94DECDCA",
+        "caption": "species_trt_pt",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=species_trt_pt&cache_key=94DECDCA",
+        "displayedObservations": 500,
+        "environment": "",
+        "expression": "species_trt_pt",
+        "object": "species_trt_pt",
+        "preview": 0,
+        "totalObservations": 500,
+        "variables": 37,
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2466321629402459502,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1648660727633,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -101,8 +101,9 @@ swim_5 <- brm(swim_time ~ 1 + Side*treatment*Species*Trial +
               family = Gamma(link = "log"),
               data = swim_time,
               prior = c(prior(normal(4,2), class = "Intercept"),
-                        prior(normal(0,1), ub = 5.703782, class = "b"),
+                        prior(normal(0,1), class = "b"),
                         prior(exponential(0.1), class = "shape")),
+              prior(exponential(1), class = "sd"),
               #sample_prior = "only",
               cores = 4, chains = 1, iter = 1000)
 

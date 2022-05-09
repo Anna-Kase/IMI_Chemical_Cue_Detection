@@ -19,7 +19,7 @@ swim_time <- all_tbl  %>%
 
 # Models for every variable combination
 
-side_only <- brm(swim_time ~ 1 + Side + (Side|Turtle),
+side_only <- brm(time ~ 1 + Side + (Side|Turtle),
                  family = Gamma(link = "log"),
                  data = swim_time,
                  prior = c(prior(normal(4,2), class = "Intercept"),

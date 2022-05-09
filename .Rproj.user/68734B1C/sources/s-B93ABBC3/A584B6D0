@@ -1,0 +1,33 @@
+{
+    "id": "A584B6D0",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1648666572946.0,
+    "source_on_save": false,
+    "relative_order": 8,
+    "properties": {
+        "cacheKey": "3B47390A",
+        "caption": "paint_trts_trial",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=paint_trts_trial&cache_key=3B47390A",
+        "displayedObservations": 2000,
+        "environment": "",
+        "expression": "paint_trts_trial",
+        "object": "paint_trts_trial",
+        "preview": 0,
+        "totalObservations": 2000,
+        "variables": 16,
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2062376666424,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1648666572946,
+    "read_only": false,
+    "read_only_alternatives": []
+}
