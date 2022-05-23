@@ -54,8 +54,8 @@ View(painted_tbl)
 
 # Removing the X9, X10, and "Just trying to make a folder to be able to downlaod all of my 
 # crazy datasets into" columns becasue I don't need them
-painted_tbl$X9 <- NULL
-painted_tbl$X10 <- NULL
+painted_tbl$...9 <- NULL
+painted_tbl$...10 <- NULL
 painted_tbl$`Just trying to make a folder to be able to download all of my crazy datasets into.` <- NULL
 
 View(painted_tbl)
@@ -118,8 +118,8 @@ View(fmt_tbl)
 
 
 # Removing the X9 and X10 columns becasue I don't need them
-fmt_tbl$X9 <- NULL
-fmt_tbl$X10 <- NULL
+fmt_tbl$...9 <- NULL
+fmt_tbl$...10 <- NULL
 
 View(fmt_tbl)
 
