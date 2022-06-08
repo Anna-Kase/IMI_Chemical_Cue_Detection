@@ -593,3 +593,308 @@ final_post %>%
          diff_pt_fmt = painted - fmt) %>% 
   summarize(prob_fmt_pt = (sum(diff_fmt_pt>0)/length(.draw))*100,
             prob_pt_fmt = (sum(diff_pt_fmt>0)/length(.draw))*100)
+
+
+# --------------------------------------------------------------------------------
+
+
+all_tbl <- read.csv("data/master_all_turtle_data.csv")
+
+all_tbl$time <- as.numeric(all_tbl$time)
+all_tbl$treatment <- as.character(all_tbl$treatment)
+all_tbl <- drop_na(all_tbl)
+all_tbl$Turtle <- as.character(all_tbl$Turtle)
+
+select_data <- all_tbl %>% 
+  select(Turtle, Species, Trial, Behavior, Start_Time, End_Time, total_seconds)
+
+head(select_data)
+
+# https://stackoverflow.com/questions/58589079/duplicate-rows-based-on-other-column-values-in-r
+
+
+
+data.frame(select_data[rep(seq_len(dim(select_data)[1]),  with(select_data, ifelse(total_seconds > 0 & !is.na(total_seconds), total_seconds, 1))
+), , drop = FALSE], row.names=NULL) %>% 
+  mutate(number_seconds = rep(1:300, times=253)) %>% 
+  mutate(binary_behavior = case_when(Behavior == "Swimming" ~ 1,
+                                     TRUE ~ 0)) %>% 
+  group_by(Turtle, Trial) %>% 
+  mutate(cumulative = cumsum(binary_behavior)) %>% 
+  ggplot(aes(number_seconds, cumulative, col=Trial))+
+  geom_line(alpha=0.5, size=2)+
+  facet_wrap(~Turtle)+
+  labs(x="Time During Trial", y="Cumulative Seconds Spent Moving")+
+  scale_color_manual(name="Trial", labels = c("Preliminary Trial", "Trial 1", 
+                                             "Trial 2", "Trial 3"),
+                    values = c("#44AA99", "#AA4499", "#6699CC", "#DDCC77"))
+  
+
+ 
+data.frame(select_data[rep(seq_len(dim(select_data)[1]),  with(select_data, ifelse(total_seconds > 0 & !is.na(total_seconds), total_seconds, 1))
+), , drop = FALSE], row.names=NULL) %>% 
+  mutate(number_seconds = rep(1:300, times=253)) %>% 
+  mutate(binary_behavior = case_when(Behavior == "Swimming" ~ 1,
+                                     TRUE ~ 0)) %>% 
+  filter(number_seconds <= 60) %>% 
+  group_by(Turtle, Trial) %>% 
+  mutate(cumulative = cumsum(binary_behavior)) %>% 
+  ggplot(aes(number_seconds, cumulative, col=Trial))+
+  geom_line(alpha=0.5, size=2)+
+  facet_wrap(~Turtle)+
+  labs(x="Time During Trial", y="Cumulative Seconds Spent Moving")+
+  scale_color_manual(name="Trial", labels = c("Preliminary Trial", "Trial 1", 
+                                              "Trial 2", "Trial 3"),
+                     values = c("#44AA99", "#AA4499", "#6699CC", "#DDCC77"))
+
+
+
+
+
+
+
+
+
+
+all_tbl <- read.csv("data/master_all_turtle_data.csv")
+
+all_tbl$time <- as.numeric(all_tbl$time)
+all_tbl$treatment <- as.character(all_tbl$treatment)
+all_tbl <- drop_na(all_tbl)
+all_tbl$Turtle <- as.character(all_tbl$Turtle)
+
+select_data <- all_tbl %>% 
+  select(Turtle, Species, treatment, Side, Trial, Behavior, Start_Time, End_Time, total_seconds) 
+
+
+half_data <- data.frame(select_data[rep(seq_len(dim(select_data)[1]),  with(select_data, ifelse(total_seconds > 0 & !is.na(total_seconds), total_seconds, 1))
+), , drop = FALSE], row.names=NULL) %>% 
+  mutate(number_seconds = rep(1:300, times=253)) %>% 
+  mutate(binary_behavior = case_when(Behavior == "Swimming" ~ 1,
+                                     TRUE ~ 0)) %>% 
+  filter(number_seconds <= 150) %>% 
+  group_by(Turtle, Trial) %>% 
+  mutate(cumulative = cumsum(binary_behavior)) %>% 
+  select(Turtle, Species, Side, treatment, Trial, Behavior, total_seconds) %>% 
+  filter(Side == "Stimulus") %>% 
+  filter(Behavior == "Swimming") %>% 
+  distinct(Turtle, Species, Side, treatment, Trial, Behavior, total_seconds, .keep_all = TRUE) %>% 
+  group_by(Turtle, Species, Side, treatment, Trial, Behavior) %>%
+  summarise(
+    time = sum(total_seconds)
+  ) 
+  
+
+a <- c("107", "Trial_1", "0")
+b <- c("108", "Prelim_Trial", "0")
+c <- c("108", "Trial_1", "0")
+d <- c("108", "Trial_2", "0")
+e <- c("111", "Prelim_Trial", "0")
+f <- c("114", "Trial_1", "0")
+g <- c("114", "Trial_3", "0")
+h <- c("119", "Trial_1", "0")
+i <- c("119", "Trial_2", "0")
+j <- c("119", "Trial_3", "0")
+k <- c("122", "Trial_1", "0")
+l <- c("122", "Trial_3", "0")
+m <- c("124", "Prelim_Trial", "0")
+n <- c("125", "Trial_1", "0")
+o <- c("125", "Trial_3", "0")
+p <- c("126", "Trial_3", "0")
+q <- c("128", "Trial_3", "0")
+r <- c("129", "Prelim_Trial", "0")
+s <- c("129", "Trial_1", "0")
+t <- c("129", "Trial_2", "0")
+u <- c("131", "Prelim_Trial", "0")
+v <- c("132", "Prelim_Trial", "0")
+w <- c("132", "Trial_2", "0")
+x <- c("133", "Prelim_Trial", "0")
+y <- c("133", "Trial_2", "0")
+z <- c("134", "Trial_2", "0")
+aa <- c("134", "Trial_3", "0")
+bb <- c("136", "Trial_3", "0")
+cc <- c("137", "Trial_3", "0")
+dd <- c("58", "Prelim_Trial", "0")
+ee <- c("64", "Trial_1", "0")
+ff <- c("73", "Prelim_Trial", "0")
+gg <- c("73", "Trial_1", "0")
+hh <- c("74", "Trial_1", "0")
+ii <- c("76", "Trial_3", "0")
+jj <- c("78", "Trial_1", "0")
+kk <- c("78", "Trial_3", "0")
+ll <- c("79", "Trial_1", "0")
+mm <- c("79", "Trial_3", "0")
+nn <- c("82", "Prelim_Trial", "0")
+oo <- c("83", "Trial_2", "0")
+pp <- c("84", "Trial_1", "0")
+qq <- c("84", "Trial_3", "0")
+rr <- c("85", "Trial_1", "0")
+ss <- c("85", "Trial_3", "0")
+tt <- c("86", "Trial_2", "0")
+uu <- c("90", "Prelim_Trial", "0")
+vv <- c("90", "Trial_1", "0")
+ww <- c("90", "Trial_3", "0")
+
+xx <- c("1000", "Trial_3", "0")
+yy <- c("109", "Prelim_Trial", "0")
+zz <- c("111", "Trial_3", "0")
+aaa <- c("112", "Trial_2", "0")
+bbb <- c("115", "Trial_2", "0")
+ccc <- c("116", "Prelim_Trial", "0")
+ddd <- c("119", "Prelim_Trial", "0")
+eee <- c("120", "Trial_1", "0")
+fff <- c("120", "Trial_3", "0")
+ggg <- c("121", "Trial_3", "0")
+hhh <- c("122", "Prelim_Trial", "0")
+iii <- c("123", "Trial_3", "0")
+jjj <- c("125", "Prelim_Trial", "0")
+kkk <- c("125", "Trial_2", "0")
+lll <- c("127", "Trial_1", "0")
+mmm <- c("127", "Trial_3", "0")
+nnn <- c("129", "Trial_3", "0")
+ooo <- c("132", "Trial_1", "0")
+ppp <- c("132", "Trial_3", "0")
+qqq <- c("133", "Trial_1", "0")
+rrr <- c("135", "Trial_1", "0")
+sss <- c("136", "Prelim_Trial", "0")
+ttt <- c("136", "Trial_1", "0")
+uuu <- c("145", "Trial_1", "0")
+vvv <- c("145", "Trial_3", "0")
+www <- c("155", "Trial_3", "0")
+xxx <- c("2000", "Trial_1", "0")
+yyy <- c("2000", "Trial_3", "0")
+zzz <- c("55", "Trial_2", "0")
+aaaa <- c("74", "Trial_3", "0")
+bbbb <- c("76", "Trial_1", "0")
+cccc <- c("85", "Trial_2", "0")
+dddd <- c("88", "Prelim_Trial", "0")
+ffff <- c("88", "Trial_1", "0")
+gggg <- c("93.", "Trial_3", "0")
+hhhh <- c("95", "Trial_2", "0")
+iiii <- c("96", "Trial_1", "0")
+
+half_data2 <- half_data %>% 
+  ungroup() %>% 
+  select(Turtle, Trial, time)
+
+half_data3 <- rbind(half_data2, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,
+               y, z, aa, bb, cc, dd, ee, ff, gg, hh, ii, jj, kk, ll, mm, nn, oo, pp, qq, rr, 
+               ss, tt, uu, vv, ww, xx, yy, zz, aaa, bbb, ccc, ddd, eee, fff, ggg, hhh, iii, jjj, kkk, 
+               lll, mmm, nnn, ooo, ppp, qqq, rrr, sss, ttt, uuu, vvv, www, xxx, yyy, zzz, aaaa,
+               bbbb, cccc, dddd, ffff, gggg, hhhh, iiii)
+
+half_data4 <- half_data3 %>% 
+  mutate(treatment = case_when(Turtle %in% c(86,91,83,93,80,76,58,75,109,124,113,123,120,115,1000,119) ~ "0",
+                               Turtle %in% c(90,88,84,94,92,62,73,54,130,121,122,132,128,108,129,107) ~ "0.1",
+                               Turtle %in% c(96,87,89,82,55,68,65,2000,114,126,131,116,117,136,111,125) ~ "1",
+                               TRUE ~ "10")) %>% 
+  mutate(Species = case_when(Turtle %in% c(107,108,109,111,112,113,114,115,116,117,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,145,155,1000) ~ "fmt",
+                             TRUE ~ "painted")) %>% 
+  mutate(Side = "Stimulus") %>% 
+  mutate(Behavior = 'Swimming')
+
+
+View(half_data4)
+
+
+write.csv(data4, "~/GitHub/IMI_Chemical_Cue_Detection/data/half_data.csv", row.names=FALSE)
+
+
+
+half_trial <-  brm(time ~ 1 + Species * treatment * Trial + (1| Turtle),
+             data = half_data,
+             family = hurdle_gamma(link="log"),
+             prior = c(prior(normal(4,2), class = "Intercept"),
+                       prior(normal(0, 1), class = "b"),
+                       prior(exponential(0.1), class = "sd")),
+             chains = 4, iter = 4000)
+
+saveRDS(half_trial, file="models/half_trial.RDS")
+
+half_trial$data %>% 
+  distinct() %>% 
+  add_epred_draws(half_trial) %>% 
+  mutate(species_labels = case_when(Species == "fmt" ~ "False Map Turtle",
+                                    TRUE ~ "Painted Turtle")) %>% 
+  ggplot(aes(Trial, .epred, fill=treatment))+
+  geom_boxplot(outlier.shape = NA)+
+  facet_wrap(~species_labels)+
+  geom_point(data=half_trial$data, aes(Trial, time, group=treatment),
+             position=position_dodge(width=0.75), alpha=0.25) +
+  ylim(0,150) +
+  labs(x = "Trial", y = "Time Spent Foraging (seconds)")+
+  scale_fill_manual(name="Imidacloprid Treatment", labels = c("0 ug/L", "0.1 ug/L", 
+                                                              "1 ug/L", "10 ug/L"),
+                    values = c("#D55E00", "#56B4E9", "#009E73", "#999999"))+
+  scale_x_discrete(labels = c("Prelim_Trial" = "Preliminary \n Trial", 
+                              "Trial_1" = "Trial 1",
+                              "Trial_2" = "Trial 2",
+                              "Trial_3" = "Trial 3")) +
+  theme_bw()
+ggsave("~/GitHub/IMI_Chemical_Cue_Detection/plots/halfTrial_boxplot_3variables_colTrt.png")
+
+#average time overall
+half_trial$data %>% 
+  distinct() %>% 
+  add_epred_draws(half_trial) %>% 
+  ungroup() %>% 
+  select(-.row, -.chain) %>% 
+  group_by(.draw, Species, treatment) %>% 
+  summarize(average_time = mean(.epred)) %>% 
+  ggplot(aes(x = average_time, y = treatment, fill = Species)) + 
+  geom_density_ridges(alpha = 0.75)+
+  labs(x = "Average Time Spent Foraging (seconds)", y = "Imidacloprid Concentration (ug/L)")+
+  scale_fill_manual(name="Species", labels = c("False Map Turtle", "Painted Turtle"),
+                    values = c("#117733", "#888888"))+
+  theme_bw()
+
+
+half_trial$data %>% 
+  distinct() %>% 
+  add_epred_draws(half_trial) %>% 
+  ungroup() %>% 
+  select(-.row, -.chain) %>% 
+  group_by(.draw, Species, treatment) %>% 
+  summarize(average_time = mean(.epred)) %>% 
+  ggplot(aes(x = treatment, y = average_time, fill = Species)) + 
+  geom_violin(outlier.shape = NA)+
+  geom_boxplot(width=0.1, color="black", alpha=0.2, outlier.shape=NA, position=position_dodge(width=0.9))+
+  labs(y = "Average Time Spent Foraging (seconds)", x = "Imidacloprid Concentration (ug/L)")+
+  scale_fill_manual(name="Species", labels = c("False Map Turtle", "Painted Turtle"),
+                    values = c("#117733", "#888888"))+
+  theme_bw()
+ggsave("~/GitHub/IMI_Chemical_Cue_Detection/plots/halfTrial_species_avg_violin.png")
+
+
+half_post <- half_trial$data %>% 
+  distinct(Species, treatment, Trial) %>% 
+  add_epred_draws(half_trial, re_formula = NA) 
+
+half_post$.row=NULL
+
+
+half_post %>% 
+  median_qi(.epred) %>% 
+  write.csv("~/GitHub/IMI_Chemical_Cue_Detection/tables/halfTrial_median_qi_values.csv", row.names = FALSE)
+
+
+half_post %>% 
+  ungroup() %>% 
+  select(-.chain, -.iteration) %>%
+  distinct() %>% 
+  pivot_wider(names_from = treatment, values_from = .epred) %>% 
+  mutate(diff_0_01 = `0`-`0.1`,
+         diff_0_1 = `0` - `1`,
+         diff_0_10 = `0` - `10`,
+         diff_01_1 = `0.1` - `1`,
+         diff_01_10 = `0.1` - `10`,
+         diff_1_10 = `1` - `10`) %>% 
+  group_by(Species, Trial) %>% 
+  summarize(prob_0_01 = (sum(diff_0_01>0)/length(.draw))*100,
+            prob_0_1 = (sum(diff_0_1>0)/length(.draw))*100,
+            prob_0_10 = (sum(diff_0_10>0)/length(.draw))*100,
+            prob_01_1 = (sum(diff_01_1>0)/length(.draw))*100,
+            prob_01_10 = (sum(diff_01_10>0)/length(.draw))*100,
+            prob_1_10 = (sum(diff_1_10>0)/length(.draw))*100) %>% 
+  write.csv("~/GitHub/IMI_Chemical_Cue_Detection/tables/dq_diff_trt_by_SPandTp.csv", row.names = FALSE)
+
